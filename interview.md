@@ -83,7 +83,7 @@
    }
    ```
 
-   ​
+   
 
 
 
@@ -141,7 +141,7 @@
    }
    ```
 
-   ​
+   
 
    3. 游戏币组合
 
@@ -204,4 +204,100 @@
       }
       ```
 
-      ​
+      
+   
+   4.有趣的两位数
+   
+   由公式 ab * cd = ba * dc 可以推出 ac = bd
+   
+   因为是两位数，所以范围可以缩小到1-9的乘积，枚举出99乘法表种所有的 ac bd 集合，然后循环组装成ab cd
+   
+   ```go
+   // ab * cd = ba * dc => ac = bd
+   // 满足99乘法表的组合的ac，bd相互组合即可
+   func FunnyTwoNums() [][2]int {
+   	funnyMap := make(map[int][][2]int)
+   	for i := 1; i <= 9; i++ {
+   		for j := 1; j <= 9; j++ {
+   			funnyMap[i*j] = append(funnyMap[i*j], [2]int{i,j})
+   		}
+   	}
+   	funnyArr := make([][2]int, 0, 100)
+   	for _, val := range funnyMap {
+   		l := len(val)
+   		if l >= 2 {
+   			for i := 0; i < l-1; i++ {
+   				for j := i+1; j < l; j++ {
+   					a := val[i][0]
+   					c := val[i][1]
+   					b := val[j][0]
+   					d := val[j][1]
+   					funnyArr = append(funnyArr, [2]int{a*10+b, c*10+d})
+   				}
+   			}
+   		}
+   	}
+   	return funnyArr
+   }
+   ```
+   
+   
+
+6.单链表处理
+
+   不新建额外的空间的情况下，应该就是将链表拆分成两部分，然后后半部分链表反转，按照中位值，将前半部分和反转后的后半部分链表重新关联。
+
+```go
+type Node struct {
+	data int
+	next *Node
+}
+// 分治法，将两边拆分为两段，反转后部分的链表，两个链表同步遍历
+func SingleList(root *Node) *Node {
+	len := 0
+	head := &Node{0, root}
+	for root != nil{
+		root = root.next; len++
+	}
+	midNode := head.next
+	mid, i := len/2, 1
+	for i <= mid {
+		midNode = midNode.next
+		i++
+	}
+	midNode = reverseList(midNode)
+	newHead := &Node{-1, nil}
+	dummy := &Node{-2, newHead}
+	root = head.next
+	for j := 1; j <= mid; j++ {
+		newHead.next = root
+		root = root.next
+		newHead.next.next = midNode
+		midNode = midNode.next
+		newHead = newHead.next.next
+	}
+	return dummy.next.next
+}
+func reverseList(root *Node) *Node {
+	if root.next == nil {
+		return root
+	}
+
+	head := &Node{-1, root}
+	prev := root
+	pCur := root.next
+	for pCur != nil {
+		prev.next = pCur.next
+		pCur.next = head.next
+		head.next = pCur
+		pCur = prev.next
+	}
+	return head.next
+}
+```
+
+
+
+7. 设计unionid
+   1. 市面成熟的方案：uuid，snowflake，或者mysql分步长设置自增id
+   2. 基本思想就是保持每次获取到变化的值，这样才能保证唯一性，不谈多机器的情况下，请求ip(16进制)+时间戳+内存计数，基本能满足，且不消耗额外网络资源，多机器就是加机器的唯一标识，如mac地址等等

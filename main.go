@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"sort"
-	"time"
 )
 
 type Depart struct {
@@ -24,10 +23,17 @@ func main()  {
 	// fmt.Println(DepartOptimal(nums, len(nums), 120))
 	// fmt.Println(DepartOptimal2([]int{10,7,5,4}, 120))
 	// fmt.Println(ValidateInviteCode("000000000000k0k0"))
-	t := time.Now()
-	fmt.Println(CombineMoney(3, 5))
-	fmt.Println(CombineMoney2(15,100))
-	fmt.Println(time.Since(t))
+	// t := time.Now()
+	// fmt.Println(CombineMoney(3, 5))
+	// fmt.Println(CombineMoney2(10,50))
+	// fmt.Println(time.Since(t))
+	fmt.Println(FunnyTwoNums())
+	// root := &Node{1, &Node{2, &Node{3, &Node{4, &Node{5, nil}}}}}
+	// root = SingleList(root)
+	// for root != nil {
+	// 	fmt.Println(root)
+	// 	root = root.next
+	// }
 }
 
 // 暴力美学
@@ -157,14 +163,89 @@ func CombineMoney(n, m int) int {
 }
 func CombineMoney2(n, m int) int {
 	cnt := 0
+	fmt.Println(1,2,5,10)
 	for i:=0;i<=n;i++ {
 		for j:=0;j<=n-i;j++ {
 			for y:=0;y<=n-i-j;y++ {
 				for k:=0;k<=n-i-j-y;k++ {
-					if i+2*j+5*y+10*k == m && i+j+y+k == n {cnt++}
+					if i+2*j+5*y+10*k == m && i+j+y+k == n {cnt++;fmt.Println(i,j,y,k)}
 				}
 			}
 		}
 	}
 	return cnt
+}
+
+// ab * cd = ba * dc => ac = bd
+// 满足99乘法表的组合的ac，bd相互组合即可
+func FunnyTwoNums() [][2]int {
+	funnyMap := make(map[int][][2]int)
+	for i := 1; i <= 9; i++ {
+		for j := 1; j <= 9; j++ {
+			funnyMap[i*j] = append(funnyMap[i*j], [2]int{i,j})
+		}
+	}
+	funnyArr := make([][2]int, 0, 100)
+	for _, val := range funnyMap {
+		l := len(val)
+		if l >= 2 {
+			for i := 0; i < l-1; i++ {
+				for j := i+1; j < l; j++ {
+					a := val[i][0]
+					c := val[i][1]
+					b := val[j][0]
+					d := val[j][1]
+					funnyArr = append(funnyArr, [2]int{a*10+b, c*10+d})
+				}
+			}
+		}
+	}
+	return funnyArr
+}
+
+type Node struct {
+	data int
+	next *Node
+}
+// 分治法，将两边拆分为两段，反转后部分的链表，两个链表同步遍历
+func SingleList(root *Node) *Node {
+	len := 0
+	head := &Node{0, root}
+	for root != nil{
+		root = root.next; len++
+	}
+	midNode := head.next
+	mid, i := len/2, 1
+	for i <= mid {
+		midNode = midNode.next
+		i++
+	}
+	midNode = reverseList(midNode)
+	newHead := &Node{-1, nil}
+	dummy := &Node{-2, newHead}
+	root = head.next
+	for j := 1; j <= mid; j++ {
+		newHead.next = root
+		root = root.next
+		newHead.next.next = midNode
+		midNode = midNode.next
+		newHead = newHead.next.next
+	}
+	return dummy.next.next
+}
+func reverseList(root *Node) *Node {
+	if root.next == nil {
+		return root
+	}
+
+	head := &Node{-1, root}
+	prev := root
+	pCur := root.next
+	for pCur != nil {
+		prev.next = pCur.next
+		pCur.next = head.next
+		head.next = pCur
+		pCur = prev.next
+	}
+	return head.next
 }
