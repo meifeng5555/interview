@@ -24,10 +24,10 @@ func main()  {
 	// fmt.Println(DepartOptimal2([]int{10,7,5,4}, 120))
 	// fmt.Println(ValidateInviteCode("000000000000k0k0"))
 	// t := time.Now()
-	// fmt.Println(CombineMoney(3, 5))
+	fmt.Println(CombineMoney(3, 5))
 	// fmt.Println(CombineMoney2(10,50))
 	// fmt.Println(time.Since(t))
-	fmt.Println(FunnyTwoNums())
+	// fmt.Println(FunnyTwoNums())
 	// root := &Node{1, &Node{2, &Node{3, &Node{4, &Node{5, nil}}}}}
 	// root = SingleList(root)
 	// for root != nil {
@@ -155,7 +155,9 @@ func CombineMoney(n, m int) int {
 		for i := 1; i <= n; i++ {
 			for j := coin; j <= m; j++ {
 				dp[i][j] += dp[i-1][j-coin]
-				fmt.Printf("%d, %d, %d, %d\n",coin,i,j,dp[i][j])
+				if coin == 2 && i==1 && j==1 {
+					fmt.Printf("%d, %d, %d, %d\n", coin, i-1, j-coin, dp[i-1][j-coin])
+				}
 			}
 		}
 	}
